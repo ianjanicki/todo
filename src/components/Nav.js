@@ -1,23 +1,25 @@
 import React from 'react';
 import { Grid, Avatar, Button, Typography } from '@material-ui/core';
+import { navigate } from '@reach/router';
 
 import { firebase, db } from '../firebase';
 import Lists from './Lists';
 
-export default function Nav({ user, lists }) {
+export default function Nav({ user, lists, location }) {
   const createList = () => {
     db.collection('lists')
-      .doc()
-      .set({
+      .add({
         title: '',
         createdAt: new Date(),
+        user: user.userRef,
         todos: [
           {
             text: '',
             completed: false
           }
         ]
-      });
+      })
+      .then(res => navigate(`/list/${res.id}`));
   };
 
   return (
@@ -45,7 +47,7 @@ export default function Nav({ user, lists }) {
           </Button>
         </Grid>
         <Grid item>
-          <Lists lists={lists} />
+          <Lists lists={lists} location={location} uid={user.uid} />
         </Grid>
       </Grid>
     </Grid>

@@ -1,37 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { CssBaseline, Grid } from '@material-ui/core';
-import { Router, Redirect } from '@reach/router';
+import { CssBaseline } from '@material-ui/core';
+import { Location } from '@reach/router';
 
 import { firebase, db } from './firebase';
-import useCollection from './hooks/useCollection';
-import List from './components/List';
+import TodoApp from './components/TodoApp';
 import Login from './components/Login';
-import Nav from './components/Nav';
 
 function App() {
   const user = useAuth();
-  const lists = useCollection('lists');
 
   return (
-    <CssBaseline>
-      {user ? (
-        <Grid container>
-          <Grid item xs={2}>
-            <Nav user={user} lists={lists} />
-          </Grid>
-          <Grid item xs={10}>
-            <Router>
-              <List path="list/:listId" user={user} />
-              {lists.length > 0 && (
-                <Redirect from="/" to={`list/${lists[0].id}`} noThrow />
-              )}
-            </Router>
-          </Grid>
-        </Grid>
-      ) : (
-        <Login />
+    <Location>
+      {({ location }) => (
+        <CssBaseline>
+          {user ? <TodoApp location={location} user={user} /> : <Login />}
+        </CssBaseline>
       )}
-    </CssBaseline>
+    </Location>
   );
 }
 
@@ -44,13 +29,15 @@ function useAuth() {
         const user = {
           displayName: firebaseUser.displayName,
           photoUrl: firebaseUser.photoURL,
-          uid: firebaseUser.uid
+          uid: firebaseUser.uid,
+          userRef: db.collection('users').doc(firebaseUser.uid)
         };
         setUser(user);
+        const { userRef, ...userRest } = user;
 
         db.collection('users')
           .doc(user.uid)
-          .set(user, { merge: true });
+          .set(userRest, { merge: true });
 
         // setupPresense(user);
       } else {

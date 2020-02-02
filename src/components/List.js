@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, InputBase, List as MuiList } from '@material-ui/core';
-import { useHotkeys } from 'react-hotkeys-hook';
+// import { useHotkeys } from 'react-hotkeys-hook';
 
 import useDoc from '../hooks/useDoc';
 import Todo from './Todo';
@@ -101,6 +101,7 @@ export default function List({ listId }) {
     <Grid container direction="column" className={classes.root}>
       <Grid item>
         <InputBase
+          autoFocus
           value={title}
           onChange={event => updateTitle(event.target.value)}
           className={classes.title}
