@@ -4,24 +4,29 @@ import {
   List,
   ListItem,
   ListItemIcon,
-  ListItemText,
+  InputBase,
   Checkbox
 } from '@material-ui/core';
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
 
 const useStyles = makeStyles(() => ({
   listItem: {
+    padding: 0,
     '&:hover $dragContainer': {
       opacity: 1
     }
   },
   dragContainer: {
     opacity: 0
+  },
+  completedText: {
+    textDecoration: 'line-through'
   }
 }));
 
-export default function Todos({ todos, handleToggle }) {
+export default function Todos({ todos, updateTodo, createTodo }) {
   const classes = useStyles();
+
   return (
     <List dense>
       {todos.map((todo, index) => (
@@ -39,10 +44,18 @@ export default function Todos({ todos, handleToggle }) {
               checked={todo.completed}
               tabIndex={-1}
               disableRipple
-              onChange={() => handleToggle(index, todo.completed)}
+              onChange={() => updateTodo(index, { completed: !todo.completed })}
             />
           </ListItemIcon>
-          <ListItemText primary={todo.text} />
+          <InputBase
+            value={todo.text}
+            {...(todo.completed && { className: classes.completedText })}
+            onChange={event => updateTodo(index, { text: event.target.value })}
+            onKeyDown={event =>
+              event.key === 'Enter' &&
+              createTodo(index, event.target.selectionStart, event.target.value)
+            }
+          />
         </ListItem>
       ))}
     </List>

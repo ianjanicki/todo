@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CssBaseline, Grid } from '@material-ui/core';
-import { Router } from '@reach/router';
+import { Router, Redirect } from '@reach/router';
 
 import { firebase, db } from './firebase';
 import useCollection from './hooks/useCollection';
@@ -22,7 +22,9 @@ function App() {
           <Grid item xs={10}>
             <Router>
               <List path="list/:listId" user={user} />
-              {/* <Redirect from="/" to="channel/general" noThrow /> */}
+              {lists.length > 0 && (
+                <Redirect from="/" to={`list/${lists[0].id}`} noThrow />
+              )}
             </Router>
           </Grid>
         </Grid>
