@@ -1,10 +1,25 @@
 import React from 'react';
 import { Grid, Avatar, Button, Typography } from '@material-ui/core';
 
-import { firebase } from '../firebase';
+import { firebase, db } from '../firebase';
 import Lists from './Lists';
 
 export default function Nav({ user, lists }) {
+  const createList = () => {
+    db.collection('lists')
+      .doc()
+      .set({
+        title: '',
+        createdAt: new Date(),
+        todos: [
+          {
+            text: '',
+            completed: false
+          }
+        ]
+      });
+  };
+
   return (
     <Grid container>
       <Grid item container alignItems="center">
@@ -25,7 +40,7 @@ export default function Nav({ user, lists }) {
       </Grid>
       <Grid item container direction="column">
         <Grid item>
-          <Button size="small" fullWidth>
+          <Button size="small" fullWidth onClick={createList}>
             New List
           </Button>
         </Grid>

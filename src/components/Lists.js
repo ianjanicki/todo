@@ -8,7 +8,9 @@ export default function Lists({ lists }) {
       {lists.map(list => (
         <Link key={list.id} to={`/list/${list.id}`}>
           <ListItem button>
-            <ListItemText primary={list.title} />
+            <ListItemText
+              primary={list.title === '' ? 'Untitled' : list.title}
+            />
           </ListItem>
         </Link>
       ))}

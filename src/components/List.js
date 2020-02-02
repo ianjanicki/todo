@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Grid, InputBase } from '@material-ui/core';
-import Hotkeys from 'react-hot-keys';
+import { Grid, InputBase, List as MuiList } from '@material-ui/core';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 import useDoc from '../hooks/useDoc';
-import Todos from './Todos';
+import Todo from './Todo';
 import { db } from '../firebase';
 
 const useStyles = makeStyles(theme => ({
@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(10)
   },
   title: {
-    marginLeft: theme.spacing(9),
+    marginLeft: theme.spacing(7),
     fontSize: '2rem',
     fontWeight: 500
   }
@@ -21,9 +21,29 @@ const useStyles = makeStyles(theme => ({
 export default function List({ listId }) {
   const { title = '', todos = [] } = useDoc(`lists/${listId}`);
   const classes = useStyles();
+  // const [focusIndex, setFocusIndex] = useState(0);
 
-  const createTodo = (index, selectionStart, currentValue) =>
-    db
+  // useHotkeys('up', () => setFocusIndex(focusIndex !== 0 && focusIndex - 1));
+  // useHotkeys('down', () =>
+  //   setFocusIndex(focusIndex !== todos.length && focusIndex + 1)
+  // );
+
+  const handleInput = (event, index) => {
+    if (event.key === 'Enter') {
+      return createTodo(index, event.target.selectionStart, event.target.value);
+    }
+    if (
+      (index !== 0 || todos.length > 1) &&
+      event.key === 'Backspace' &&
+      event.target.selectionStart === 0
+    ) {
+      return deleteTodo(index);
+    }
+  };
+
+  const createTodo = (index, selectionStart, currentValue) => {
+    // setFocusIndex(index + 1);
+    return db
       .collection('lists')
       .doc(listId)
       .update({
@@ -41,6 +61,20 @@ export default function List({ listId }) {
           ...todos.slice(index + 1, todos.length + 1)
         ]
       });
+  };
+
+  const deleteTodo = index => {
+    // setFocusIndex(index - 1);
+    return db
+      .collection('lists')
+      .doc(listId)
+      .update({
+        todos: [
+          ...todos.slice(0, index),
+          ...todos.slice(index + 1, todos.length)
+        ]
+      });
+  };
 
   const updateTitle = title =>
     db
@@ -70,10 +104,22 @@ export default function List({ listId }) {
           value={title}
           onChange={event => updateTitle(event.target.value)}
           className={classes.title}
+          placeholder="Untitled"
         />
       </Grid>
       <Grid item>
-        <Todos todos={todos} updateTodo={updateTodo} createTodo={createTodo} />
+        <MuiList dense>
+          {todos.map((todo, index) => (
+            <Todo
+              key={index}
+              todo={todo}
+              index={index}
+              handleInput={handleInput}
+              updateTodo={updateTodo}
+              // focusIndex={focusIndex}
+            />
+          ))}
+        </MuiList>
       </Grid>
     </Grid>
   );
