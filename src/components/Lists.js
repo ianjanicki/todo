@@ -58,7 +58,7 @@ function Lists({ lists, location, uid }) {
   };
 
   return (
-    <List component="nav" aria-label="secondary mailbox folders">
+    <List component="nav">
       {sortedLists.map(list => (
         <div key={list.id}>
           <ListItem

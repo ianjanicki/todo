@@ -3,7 +3,8 @@ import { Grid, Avatar, Button, Typography } from '@material-ui/core';
 import { navigate } from '@reach/router';
 
 import { firebase, db } from '../firebase';
-import Lists from './Lists';
+// import Lists from './Lists';
+import DnD from './DnD';
 
 export default function Nav({ user, lists, location }) {
   const createList = () => {
@@ -47,7 +48,8 @@ export default function Nav({ user, lists, location }) {
           </Button>
         </Grid>
         <Grid item>
-          <Lists lists={lists} location={location} uid={user.uid} />
+          <DnD lists={lists} />
+          {/* <Lists lists={lists} location={location} uid={user.uid} /> */}
         </Grid>
       </Grid>
     </Grid>
