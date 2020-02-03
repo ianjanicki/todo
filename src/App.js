@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { CssBaseline } from '@material-ui/core';
+import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import { Location } from '@reach/router';
 
 import { firebase, db } from './firebase';
+import theme from './style/theme';
 import TodoApp from './components/TodoApp';
 import Login from './components/Login';
 
@@ -12,9 +13,10 @@ function App() {
   return (
     <Location>
       {({ location }) => (
-        <CssBaseline>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
           {user ? <TodoApp location={location} user={user} /> : <Login />}
-        </CssBaseline>
+        </ThemeProvider>
       )}
     </Location>
   );

@@ -10,7 +10,7 @@ import {
   // Menu,
   // MenuItem
 } from '@material-ui/core';
-import { navigate } from '@reach/router';
+// import { navigate } from '@reach/router';
 import { makeStyles } from '@material-ui/core/styles';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 // import DeleteIcon from '@material-ui/icons/DeleteOutline';
@@ -82,8 +82,11 @@ const Card = ({ id, text, index, moveCard }) => {
   return (
     <ListItem
       ref={ref}
+      style={{ opacity }}
       // selected={list.id === currentLocation}
       button
+      disableRipple
+      disableTouchRipple
       ContainerProps={{ className: classes.listItem }}
       // onClick={() => navigate(`/list/${list.id}`)}
     >
@@ -95,7 +98,7 @@ const Card = ({ id, text, index, moveCard }) => {
         className={classes.menuContainer}
         // onClick={handleClick}
       >
-        <IconButton>
+        <IconButton size="small">
           <MoreVertIcon />
         </IconButton>
       </ListItemSecondaryAction>
