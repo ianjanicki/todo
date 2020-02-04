@@ -3,10 +3,9 @@ import { Grid, Avatar, Button, Typography } from '@material-ui/core';
 import { navigate } from '@reach/router';
 
 import { firebase, db } from '../firebase';
-// import Lists from './Lists';
-import DnD from './DnD';
+import Lists from './Lists';
 
-export default function Nav({ user, lists, location }) {
+export default function Nav({ user, lists, location, darkTheme, handleMode }) {
   const createList = () => {
     db.collection('lists')
       .add({
@@ -20,7 +19,14 @@ export default function Nav({ user, lists, location }) {
           }
         ]
       })
-      .then(res => navigate(`/list/${res.id}`));
+      .then(res => {
+        db.collection('users')
+          .doc(user.uid)
+          .update({
+            listOrder: [res.id, ...lists.map(list => list.id)]
+          });
+        navigate(`/list/${res.id}`);
+      });
   };
 
   return (
@@ -48,8 +54,7 @@ export default function Nav({ user, lists, location }) {
           </Button>
         </Grid>
         <Grid item>
-          <DnD lists={lists} user={user} />
-          {/* <Lists lists={lists} location={location} uid={user.uid} /> */}
+          <Lists lists={lists} user={user} location={location} />
         </Grid>
       </Grid>
     </Grid>

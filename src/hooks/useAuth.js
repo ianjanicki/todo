@@ -19,7 +19,6 @@ export default function useAuth() {
         db.collection('users')
           .doc(authUser.uid)
           .set(authUser, { merge: true });
-
         // Fetch extended user data from Firestore
         db.doc(`/users/${authUser.uid}`).onSnapshot(doc => {
           setUser({

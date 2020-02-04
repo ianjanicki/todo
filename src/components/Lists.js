@@ -1,102 +1,81 @@
-import React from 'react';
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListItemSecondaryAction,
-  IconButton,
-  Menu,
-  MenuItem
-} from '@material-ui/core';
-import { navigate } from '@reach/router';
-import { makeStyles } from '@material-ui/core/styles';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import DeleteIcon from '@material-ui/icons/DeleteOutline';
+import React, { useState, useEffect, useCallback } from 'react';
+import List from '@material-ui/core/List';
+import update from 'immutability-helper';
 import _ from 'lodash';
+import { navigate } from '@reach/router';
 
+import ListItem from './ListItem';
 import { db } from '../firebase';
-import useDoc from '../hooks/useDoc';
 
-const useStyles = makeStyles(() => ({
-  listItem: {
-    padding: 0,
-    '&:hover $menuContainer': {
-      opacity: 1
-    }
-  },
-  menuContainer: {
-    opacity: 0
-  }
-}));
-
-function Lists({ lists, location, uid }) {
-  const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+const Container = ({ lists, user, location }) => {
+  const [listItems, setListItems] = useState([]);
   const currentLocation = location.pathname.replace('/list/', '');
-  const { listOrder } = useDoc(`/users/${uid}`);
+  useEffect(() => {
+    var sortedLists = _.sortBy(lists, function(list) {
+      return user.listOrder.indexOf(list.id);
+    });
+    setListItems(sortedLists);
+  }, [user.listOrder, lists]);
 
-  var sortedLists = _.sortBy(lists, function(list) {
-    return listOrder.indexOf(list.id);
-  });
+  const updateOrder = () => {
+    const listOrder = listItems.map(item => item.id);
+    db.collection('users')
+      .doc(user.uid)
+      .update({
+        listOrder
+      });
+  };
 
   const deleteList = id => {
+    db.collection('users')
+      .doc(user.uid)
+      .update({
+        listOrder: _.pull(user.listOrder, id)
+      });
     db.collection('lists')
       .doc(id)
       .delete();
-    navigate(`/list/${lists[0].id}`);
-    handleClose();
+    if (lists.length === 1) {
+      return navigate(`/`);
+    }
+    if (id === currentLocation) {
+      return navigate(`/list/${user.listOrder[0]}`);
+    }
+    return;
   };
 
-  const handleClick = event => {
-    event.stopPropagation();
-    setAnchorEl(event.currentTarget);
+  const moveCard = useCallback(
+    (dragIndex, hoverIndex) => {
+      const dragCard = listItems[dragIndex];
+      setListItems(
+        update(listItems, {
+          $splice: [
+            [dragIndex, 1],
+            [hoverIndex, 0, dragCard]
+          ]
+        })
+      );
+    },
+    [listItems]
+  );
+  const renderListItem = (item, index) => {
+    return (
+      <ListItem
+        key={item.id}
+        index={index}
+        id={item.id}
+        text={item.title}
+        moveCard={moveCard}
+        updateOrder={updateOrder}
+        currentLocation={currentLocation}
+        deleteList={deleteList}
+      />
+    );
   };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   return (
-    <List component="nav">
-      {sortedLists.map(list => (
-        <div key={list.id}>
-          <ListItem
-            selected={list.id === currentLocation}
-            button
-            ContainerProps={{ className: classes.listItem }}
-            onClick={() => navigate(`/list/${list.id}`)}
-          >
-            <ListItemText
-              primary={list.title === '' ? 'Untitled' : list.title}
-            />
-            <ListItemSecondaryAction
-              className={classes.menuContainer}
-              onClick={handleClick}
-            >
-              <IconButton>
-                <MoreVertIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-          <Menu
-            id="simple-menu"
-            anchorEl={anchorEl}
-            keepMounted
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem onClick={() => deleteList(list.id)} dense>
-              <ListItemIcon>
-                <DeleteIcon fontSize="small" />
-              </ListItemIcon>
-              Delete
-            </MenuItem>
-          </Menu>
-        </div>
-      ))}
+    <List dense component="nav">
+      {listItems.map((item, i) => renderListItem(item, i))}
     </List>
   );
-}
-
-export default Lists;
+};
+export default Container;
