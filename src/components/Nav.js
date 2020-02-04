@@ -14,8 +14,9 @@ export default function Nav({ user, lists, location, darkTheme, handleMode }) {
         user: user.userRef,
         todos: [
           {
-            text: '',
-            completed: false
+            title: '',
+            completed: false,
+            expandded: true
           }
         ]
       })

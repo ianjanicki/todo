@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Grid, InputBase, List as MuiList } from '@material-ui/core';
 // import { useHotkeys } from 'react-hotkeys-hook';
 
+import SortableTree from './SortableTree';
 import useDoc from '../hooks/useDoc';
 import Todo from './Todo';
 import { db } from '../firebase';
@@ -51,12 +52,14 @@ export default function List({ listId }) {
         todos: [
           ...todos.slice(0, index),
           {
-            text: currentValue.substring(0, selectionStart),
-            completed: false
+            title: currentValue.substring(0, selectionStart),
+            completed: false,
+            expanded: true
           },
           {
-            text: currentValue.substring(selectionStart),
-            completed: false
+            title: currentValue.substring(selectionStart),
+            completed: false,
+            expanded: true
           },
           ...todos.slice(index + 1, todos.length + 1)
         ]
@@ -109,7 +112,7 @@ export default function List({ listId }) {
         />
       </Grid>
       <Grid item>
-        <MuiList dense>
+        {/* <MuiList dense>
           {todos.map((todo, index) => (
             <Todo
               key={index}
@@ -120,7 +123,8 @@ export default function List({ listId }) {
               // focusIndex={focusIndex}
             />
           ))}
-        </MuiList>
+        </MuiList> */}
+        <SortableTree todos={todos} listId={listId} />
       </Grid>
     </Grid>
   );

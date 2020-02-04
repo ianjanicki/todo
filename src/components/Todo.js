@@ -50,7 +50,7 @@ export default function Todos({
         value={todo.text}
         {...(todo.completed && { className: classes.completedText })}
         // autoFocus={focusIndex === index}
-        onChange={event => updateTodo(index, { text: event.target.value })}
+        onChange={event => updateTodo(index, { title: event.target.value })}
         onKeyDown={event => handleInput(event, index)}
       />
     </ListItem>
