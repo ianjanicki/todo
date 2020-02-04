@@ -19,7 +19,7 @@ const TodoApp = ({ user, location }) => {
         <Grid item xs={10}>
           <Router>
             <List path="list/:listId" user={user} />
-            {user.listOrder && user.listOrder.length && lists > 0 && (
+            {user.listOrder && user.listOrder.length && lists.length > 0 && (
               <Redirect from="/" to={`list/${lists[0].id}`} noThrow />
             )}
           </Router>
