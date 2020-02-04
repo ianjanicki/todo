@@ -39,6 +39,7 @@ export default function Todos({
       <ListItemIcon>
         <Checkbox
           edge="start"
+          color="primary"
           checked={todo.completed}
           tabIndex={-1}
           disableRipple

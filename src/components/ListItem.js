@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import ItemTypes from './ItemTypes';
 import {
-  ListItem,
+  ListItem as MuiListItem,
   // ListItemIcon,
   ListItemText,
   ListItemSecondaryAction,
@@ -10,28 +10,31 @@ import {
   // Menu,
   // MenuItem
 } from '@material-ui/core';
-// import { navigate } from '@reach/router';
+import { navigate } from '@reach/router';
 import { makeStyles } from '@material-ui/core/styles';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 // import DeleteIcon from '@material-ui/icons/DeleteOutline';
 
-const useStyles = makeStyles(() => ({
-  listItem: {
-    padding: 0,
+const useStyles = makeStyles(theme => ({
+  listItemContainer: {
     '&:hover $menuContainer': {
       opacity: 1
     }
+  },
+  listItem: {
+    opacity: 0.5
   },
   menuContainer: {
     opacity: 0
   }
 }));
 
-const Card = ({ id, text, index, moveCard }) => {
+const ListItem = ({ id, text, index, moveCard, updateOrder }) => {
   const classes = useStyles();
   const ref = useRef(null);
   const [, drop] = useDrop({
     accept: ItemTypes.CARD,
+    drop: () => updateOrder(),
     hover(item, monitor) {
       if (!ref.current) {
         return;
@@ -77,18 +80,18 @@ const Card = ({ id, text, index, moveCard }) => {
       isDragging: monitor.isDragging()
     })
   });
-  const opacity = isDragging ? 0 : 1;
   drag(drop(ref));
   return (
-    <ListItem
+    <MuiListItem
       ref={ref}
-      style={{ opacity }}
+      // style={{ opacity }}
       // selected={list.id === currentLocation}
       button
       disableRipple
       disableTouchRipple
-      ContainerProps={{ className: classes.listItem }}
-      // onClick={() => navigate(`/list/${list.id}`)}
+      {...(isDragging && { className: classes.listItem })}
+      ContainerProps={{ className: classes.listItemContainer }}
+      onClick={() => navigate(`/list/${id}`)}
     >
       <ListItemText
         // primary={list.title === '' ? 'Untitled' : list.title}
@@ -102,7 +105,7 @@ const Card = ({ id, text, index, moveCard }) => {
           <MoreVertIcon />
         </IconButton>
       </ListItemSecondaryAction>
-    </ListItem>
+    </MuiListItem>
   );
 };
-export default Card;
+export default ListItem;

@@ -48,7 +48,7 @@ export default function Nav({ user, lists, location }) {
           </Button>
         </Grid>
         <Grid item>
-          <DnD lists={lists} />
+          <DnD lists={lists} user={user} />
           {/* <Lists lists={lists} location={location} uid={user.uid} /> */}
         </Grid>
       </Grid>
