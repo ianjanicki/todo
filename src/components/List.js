@@ -1,11 +1,12 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Grid, InputBase, List as MuiList } from '@material-ui/core';
+import { Grid, InputBase } from '@material-ui/core';
+// import { List as MuiList } from '@material-ui/core';
 // import { useHotkeys } from 'react-hotkeys-hook';
 
 import SortableTree from './SortableTree';
 import useDoc from '../hooks/useDoc';
-import Todo from './Todo';
+// import Todo from './Todo';
 import { db } from '../firebase';
 
 const useStyles = makeStyles(theme => ({
@@ -29,55 +30,55 @@ export default function List({ listId }) {
   //   setFocusIndex(focusIndex !== todos.length && focusIndex + 1)
   // );
 
-  const handleInput = (event, index) => {
-    if (event.key === 'Enter') {
-      return createTodo(index, event.target.selectionStart, event.target.value);
-    }
-    if (
-      (index !== 0 || todos.length > 1) &&
-      event.key === 'Backspace' &&
-      event.target.selectionStart === 0
-    ) {
-      return deleteTodo(index);
-    }
-  };
+  // const handleInput = (event, index) => {
+  //   if (event.key === 'Enter') {
+  //     return createTodo(index, event.target.selectionStart, event.target.value);
+  //   }
+  //   if (
+  //     (index !== 0 || todos.length > 1) &&
+  //     event.key === 'Backspace' &&
+  //     event.target.selectionStart === 0
+  //   ) {
+  //     return deleteTodo(index);
+  //   }
+  // };
 
-  const createTodo = (index, selectionStart, currentValue) => {
-    // setFocusIndex(index + 1);
-    return db
-      .collection('lists')
-      .doc(listId)
-      .update({
-        focus: index + 1,
-        todos: [
-          ...todos.slice(0, index),
-          {
-            title: currentValue.substring(0, selectionStart),
-            completed: false,
-            expanded: true
-          },
-          {
-            title: currentValue.substring(selectionStart),
-            completed: false,
-            expanded: true
-          },
-          ...todos.slice(index + 1, todos.length + 1)
-        ]
-      });
-  };
+  // const createTodo = (index, selectionStart, currentValue) => {
+  //   // setFocusIndex(index + 1);
+  //   return db
+  //     .collection('lists')
+  //     .doc(listId)
+  //     .update({
+  //       focus: index + 1,
+  //       todos: [
+  //         ...todos.slice(0, index),
+  //         {
+  //           title: currentValue.substring(0, selectionStart),
+  //           completed: false,
+  //           expanded: true
+  //         },
+  //         {
+  //           title: currentValue.substring(selectionStart),
+  //           completed: false,
+  //           expanded: true
+  //         },
+  //         ...todos.slice(index + 1, todos.length + 1)
+  //       ]
+  //     });
+  // };
 
-  const deleteTodo = index => {
-    // setFocusIndex(index - 1);
-    return db
-      .collection('lists')
-      .doc(listId)
-      .update({
-        todos: [
-          ...todos.slice(0, index),
-          ...todos.slice(index + 1, todos.length)
-        ]
-      });
-  };
+  // const deleteTodo = index => {
+  //   // setFocusIndex(index - 1);
+  //   return db
+  //     .collection('lists')
+  //     .doc(listId)
+  //     .update({
+  //       todos: [
+  //         ...todos.slice(0, index),
+  //         ...todos.slice(index + 1, todos.length)
+  //       ]
+  //     });
+  // };
 
   const updateTitle = title =>
     db
@@ -85,20 +86,20 @@ export default function List({ listId }) {
       .doc(listId)
       .update({ title });
 
-  const updateTodo = (index, todo) => {
-    db.collection('lists')
-      .doc(listId)
-      .update({
-        todos: [
-          ...todos.slice(0, index),
-          {
-            ...todos[index],
-            ...todo
-          },
-          ...todos.slice(index + 1, todos.length)
-        ]
-      });
-  };
+  // const updateTodo = (index, todo) => {
+  //   db.collection('lists')
+  //     .doc(listId)
+  //     .update({
+  //       todos: [
+  //         ...todos.slice(0, index),
+  //         {
+  //           ...todos[index],
+  //           ...todo
+  //         },
+  //         ...todos.slice(index + 1, todos.length)
+  //       ]
+  //     });
+  // };
 
   return (
     <Grid container direction="column" className={classes.root}>

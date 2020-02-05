@@ -7,7 +7,6 @@ import Backend from 'react-dnd-html5-backend';
 import useCollection from '../hooks/useCollection';
 import List from './List';
 import Nav from './Nav';
-import SortableTree from './SortableTree';
 
 const TodoApp = ({ user, location }) => {
   const lists = useCollection('lists', undefined, ['user', '==', user.userRef]);
