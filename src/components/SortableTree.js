@@ -1,78 +1,79 @@
 import React, { Component } from 'react';
 import SortableTree, { toggleExpandedForAll } from 'react-sortable-tree';
-import MaterialUITheme from '../style/react-sortable-tree/index';
+import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
+
+// import './app.css';
 
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      searchString: '',
       searchFocusIndex: 0,
       searchFoundCount: null,
-      searchString: '',
       treeData: [
         { title: '.gitignore' },
         { title: 'package.json' },
-        { type: 'divider' },
         {
+          title: 'src',
+          isDirectory: true,
+          expanded: true,
           children: [
             { title: 'styles.css' },
             { title: 'index.js' },
             { title: 'reducers.js' },
             { title: 'actions.js' },
             { title: 'utils.js' }
-          ],
-          expanded: true,
-          isDirectory: true,
-          title: 'src'
+          ]
         },
         {
+          title: 'tmp',
+          isDirectory: true,
           children: [
             { title: '12214124-log' },
-            { dragDisabled: true, title: 'drag-disabled-file' }
-          ],
-          isDirectory: true,
-          title: 'tmp'
+            { title: 'drag-disabled-file', dragDisabled: true }
+          ]
         },
         {
-          children: [{ title: 'react-sortable-tree.js' }],
+          title: 'build',
           isDirectory: true,
-          title: 'build'
+          children: [{ title: 'react-sortable-tree.js' }]
         },
         {
-          isDirectory: true,
-          title: 'public'
+          title: 'public',
+          isDirectory: true
         },
         {
-          isDirectory: true,
-          title: 'node_modules'
+          title: 'node_modules',
+          isDirectory: true
         }
       ]
     };
 
-    this._handleUpdateTreeData = this._handleUpdateTreeData.bind(this);
-    this._handleExpandAll = this._handleExpandAll.bind(this);
-    this._handleCollapseAll = this._handleCollapseAll.bind(this);
+    this.updateTreeData = this.updateTreeData.bind(this);
+    this.expandAll = this.expandAll.bind(this);
+    this.collapseAll = this.collapseAll.bind(this);
   }
 
-  _handleUpdateTreeData(treeData) {
+  updateTreeData(treeData) {
     this.setState({ treeData });
   }
 
   expand(expanded) {
     this.setState({
       treeData: toggleExpandedForAll({
-        expanded,
-        treeData: this.state.treeData
+        treeData: this.state.treeData,
+        expanded
       })
     });
   }
 
-  _handleExpandAll() {
+  expandAll() {
     this.expand(true);
   }
 
-  _handleCollapseAll() {
+  collapseAll() {
     this.expand(false);
   }
 
@@ -117,123 +118,72 @@ class App extends Component {
       <div
         style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}
       >
-        <div style={{ flex: '0 0 auto', padding: '0 15px' }}>
-          <h3>File Explorer Theme</h3>
-          <button onClick={this._handleExpandAll}>Expand All</button>
-          <button onClick={this._handleCollapseAll}>Collapse All</button>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <form
-            onSubmit={event => {
-              event.preventDefault();
-            }}
-            style={{ display: 'inline-block' }}
-          >
-            <label htmlFor="find-box">
-              Search:&nbsp;
-              <input
-                id="find-box"
-                onChange={event =>
-                  this.setState({ searchString: event.target.value })
-                }
-                type="text"
-                value={searchString}
-              />
-            </label>
-
-            <button
-              disabled={!searchFoundCount}
-              onClick={selectPrevMatch}
-              type="button"
-            >
-              &lt;
-            </button>
-
-            <button
-              disabled={!searchFoundCount}
-              onClick={selectNextMatch}
-              type="submit"
-            >
-              &gt;
-            </button>
-
-            <span>
-              &nbsp;
-              {searchFoundCount > 0 ? searchFocusIndex + 1 : 0}
-              &nbsp;/&nbsp;
-              {searchFoundCount || 0}
-            </span>
-          </form>
-        </div>
-
         <div style={{ flex: '1 0 50%', padding: '0 0 0 15px' }}>
           <SortableTree
+            theme={FileExplorerTheme}
+            treeData={treeData}
+            onChange={this.updateTreeData}
+            searchQuery={searchString}
+            searchFocusOffset={searchFocusIndex}
+            searchFinishCallback={matches =>
+              this.setState({
+                searchFoundCount: matches.length,
+                searchFocusIndex:
+                  matches.length > 0 ? searchFocusIndex % matches.length : 0
+              })
+            }
             canDrag={({ node }) => !node.dragDisabled}
             canDrop={({ nextParent }) => !nextParent || nextParent.isDirectory}
             generateNodeProps={rowInfo => ({
-              buttons: [
-                <button
-                  key={rowInfo.node._id}
-                  onClick={() => alertNodeInfo(rowInfo)}
-                  style={{
-                    backgroundColor: 'gray',
-                    border: 0,
-                    borderRadius: '100%',
-                    color: 'white',
-                    fontWeight: 100,
-                    height: 16,
-                    padding: 0,
-                    width: 16
-                  }}
-                >
-                  i
-                </button>
-              ],
               icons: rowInfo.node.isDirectory
                 ? [
                     <div
-                      key={rowInfo.node._id}
                       style={{
-                        borderBottom: 'solid 10px gray',
-                        borderColor: rowInfo.node.expanded ? 'white' : 'gray',
                         borderLeft: 'solid 8px gray',
+                        borderBottom: 'solid 10px gray',
+                        marginRight: 10,
                         boxSizing: 'border-box',
+                        width: 16,
+                        height: 12,
                         filter: rowInfo.node.expanded
                           ? 'drop-shadow(1px 0 0 gray) drop-shadow(0 1px 0 gray) drop-shadow(0 -1px 0 gray) drop-shadow(-1px 0 0 gray)'
                           : 'none',
-                        height: 12,
-                        marginRight: 10,
-                        width: 16
+                        borderColor: rowInfo.node.expanded ? 'white' : 'gray'
                       }}
                     />
                   ]
                 : [
                     <div
-                      key={rowInfo.node._id}
                       style={{
                         border: 'solid 1px black',
                         fontSize: 8,
-                        height: 16,
-                        marginRight: 10,
                         textAlign: 'center',
-                        width: 12
+                        marginRight: 10,
+                        width: 12,
+                        height: 16
                       }}
                     >
                       F
                     </div>
-                  ]
+                  ],
+              buttons: [
+                <button
+                  style={{
+                    padding: 0,
+                    borderRadius: '100%',
+                    backgroundColor: 'gray',
+                    color: 'white',
+                    width: 16,
+                    height: 16,
+                    border: 0,
+                    fontWeight: 100
+                  }}
+                  onClick={() => alertNodeInfo(rowInfo)}
+                >
+                  i
+                </button>
+              ]
             })}
-            onChange={this._handleUpdateTreeData}
-            searchFinishCallback={matches =>
-              this.setState({
-                searchFocusIndex:
-                  matches.length > 0 ? searchFocusIndex % matches.length : 0,
-                searchFoundCount: matches.length
-              })
-            }
-            searchFocusOffset={searchFocusIndex}
-            searchQuery={searchString}
-            theme={MaterialUITheme}
-            treeData={treeData}
           />
         </div>
       </div>
