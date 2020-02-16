@@ -14,26 +14,17 @@ function FileThemeTreeNodeRenderer(props) {
     swapFrom,
     swapLength,
     swapDepth,
-    // scaffoldBlockPxWidth,
     lowerSiblingCounts,
     connectDropTarget,
     isOver,
     draggedNode,
     canDrop
-    // treeIndex,
-    // treeId, // Delete from otherProps
-    // getPrevRow, // Delete from otherProps
-    // node, // Delete from otherProps
-    // path, // Delete from otherProps
-    // rowDirection,
-    // ...otherProps
   } = props;
 
-  const styles = useStyles();
+  const classes = useStyles();
 
-  //  {...otherProps}
   return connectDropTarget(
-    <div className={styles.node}>
+    <div className={classes.node}>
       {Children.map(children, child =>
         cloneElement(child, {
           canDrop,

@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { ListItem, ListItemIcon, InputBase, Checkbox } from '@material-ui/core';
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
 
 const useStyles = makeStyles(() => ({
   listItem: {
-    padding: 0,
-    '&:hover $dragContainer': {
-      opacity: 1
-    }
+    padding: 0
+    // '&:hover $dragContainer': {
+    //   opacity: 1
+    // }
   },
   dragContainer: {
     opacity: 0
@@ -22,10 +22,12 @@ export default function Todos({
   todo,
   index,
   updateTodo,
-  handleInput
-  // focusIndex
+  handleInput,
+  setRef
 }) {
   const classes = useStyles();
+
+  // const handleFocus = () => inputRef.current.children[0].focus();
 
   return (
     <ListItem
@@ -47,11 +49,11 @@ export default function Todos({
         />
       </ListItemIcon>
       <InputBase
-        value={todo.text}
+        inputRef={setRef}
+        value={todo.title}
         {...(todo.completed && { className: classes.completedText })}
-        // autoFocus={focusIndex === index}
         onChange={event => updateTodo(index, { title: event.target.value })}
-        onKeyDown={event => handleInput(event, index)}
+        // onKeyDown={event => handleInput(event, index)}
       />
     </ListItem>
   );

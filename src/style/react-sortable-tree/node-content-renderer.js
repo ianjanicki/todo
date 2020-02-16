@@ -1,5 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { Checkbox, InputBase } from '@material-ui/core';
+import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
 
 import makeStyles from '@material-ui/styles/makeStyles';
 import stylesNode from './node-content-renderer-style.js';
@@ -19,21 +21,14 @@ function isDescendant(older, younger) {
 function FileThemeNodeContentRenderer(props) {
   const {
     scaffoldBlockPxWidth,
-    // toggleChildrenVisibility,
     connectDragPreview,
     connectDragSource,
     isDragging,
     canDrop,
-    canDrag,
     node,
     title,
     draggedNode,
-    path,
     treeIndex,
-    isSearchMatch,
-    isSearchFocus,
-    icons,
-    buttons,
     className,
     style,
     didDrop,
@@ -41,15 +36,10 @@ function FileThemeNodeContentRenderer(props) {
     listIndex,
     swapFrom,
     swapLength,
-    swapDepth,
-    onItemClick
-    // treeId, // Not needed, but preserved for other renderers
-    // isOver, // Not needed, but preserved for other renderers
-    // parentNode, // Needed for dndManager
-    // rowDirection
+    swapDepth
   } = props;
 
-  const styles = useStyles();
+  const classes = useStyles();
 
   const nodeTitle = title || node.title;
 
@@ -63,7 +53,7 @@ function FileThemeNodeContentRenderer(props) {
     if (i > 0) {
       scaffold.push(
         <div
-          className={styles.lineBlock}
+          className={classes.lineBlock}
           key={`pre_${1 + i}`}
           style={{ width: scaffoldBlockPxWidth }}
         />
@@ -77,16 +67,16 @@ function FileThemeNodeContentRenderer(props) {
         if (listIndex === swapFrom + swapLength - 1)
           // This block is on the bottom (target) line
           // This block points at the target block (where the row will go when released)
-          highlightLineClass = styles.highlightBottomLeftCorner;
+          highlightLineClass = classes.highlightBottomLeftCorner;
         else if (treeIndex === swapFrom)
           // This block is on the top (source) line
-          highlightLineClass = styles.highlightTopLeftCorner;
+          highlightLineClass = classes.highlightTopLeftCorner;
         // This block is between the bottom and top
-        else highlightLineClass = styles.highlightLineVertical;
+        else highlightLineClass = classes.highlightLineVertical;
 
         scaffold.push(
           <div
-            className={`${styles.absoluteLineBlock} ${highlightLineClass}`}
+            className={`${classes.absoluteLineBlock} ${highlightLineClass}`}
             key={`highlight_${1 + i}`}
             style={{
               left: scaffoldBlockPxWidth * i,
@@ -98,59 +88,63 @@ function FileThemeNodeContentRenderer(props) {
     }
   });
 
-  const nodeContent = (
-    <div className={styles.contentNode}>
+  let handle = (
+    <div>
+      <DragIndicatorIcon className={classes.dragContainer} />
+    </div>
+  );
+
+  handle = connectDragSource(handle, { dropEffect: 'copy' });
+
+  const toggleCheckbox = () => {
+    console.log(node);
+    node.completed = !node.completed;
+    console.log(node);
+  };
+
+  return (
+    <div className={classes.contentNode}>
       {connectDragPreview(
         <div
           className={
-            styles.row +
-            (node.active ? ` ${styles.activeRow}` : '') +
-            (isLandingPadActive ? ` ${styles.rowLandingPad}` : '') +
-            (isDragging ? ` ${styles.rowLandingPadDisable}` : '') +
-            (isLandingPadActive && !canDrop ? ` ${styles.rowCancelPad}` : '') +
-            (isSearchMatch ? ` ${styles.rowSearchMatch}` : '') +
-            (isSearchFocus ? ` ${styles.rowSearchFocus}` : '') +
-            (!canDrag ? ` ${styles.rowWrapperDragDisabled}` : '') +
+            classes.row +
+            (node.active ? ` ${classes.activeRow}` : '') +
+            (isLandingPadActive ? ` ${classes.rowLandingPad}` : '') +
+            (isDragging ? ` ${classes.rowLandingPadDisable}` : '') +
+            (isLandingPadActive && !canDrop ? ` ${classes.rowCancelPad}` : '') +
             (className ? ` ${className}` : '')
-          }
-          onClick={() =>
-            onItemClick ? onItemClick({ ...node, index: treeIndex }) : null
           }
           style={{
             opacity: isDraggedDescendant ? 0.5 : 1,
             ...style
           }}
         >
-          {node.type === 'divider' ? (
-            <div className={styles.divider} />
-          ) : (
-            <Fragment>
-              {scaffold}
-              <div className={styles.rowIcon}>{icons}</div>
-              <div className={styles.rowLabel}>
-                {typeof nodeTitle === 'string' ? (
-                  <span className={styles.rowTitle}>{nodeTitle}</span>
-                ) : typeof nodeTitle === 'function' ? (
-                  nodeTitle({
-                    node,
-                    path,
-                    treeIndex
-                  })
-                ) : (
-                  nodeTitle
-                )}
-              </div>
-              <div className={styles.rowToolbar}>{buttons}</div>
-            </Fragment>
-          )}
+          <Fragment>
+            {scaffold}
+            <div className={classes.rowIcon}>
+              {handle}
+              <Checkbox
+                color="primary"
+                checked={node.completed}
+                disableRipple
+                onChange={toggleCheckbox}
+              />
+            </div>
+            <div className={classes.rowLabel}>
+              <span className={classes.rowTitle}>{nodeTitle}</span>
+              {/* <InputBase
+                value={nodeTitle}
+                // {...(todo.completed && { className: classes.completedText })}
+                // autoFocus={focusIndex === index}
+                // onChange={event => updateTodo(index, { title: event.target.value })}
+                // onKeyDown={event => handleInput(event, index)}
+              /> */}
+            </div>
+          </Fragment>
         </div>
       )}
     </div>
   );
-
-  return canDrag
-    ? connectDragSource(nodeContent, { dropEffect: 'copy' })
-    : nodeContent;
 }
 
 FileThemeNodeContentRenderer.defaultProps = {

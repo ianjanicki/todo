@@ -32,6 +32,12 @@ export default () => ({
     height: 1,
     width: '100%'
   },
+  dragContainer: {
+    opacity: 0,
+    '&:hover': {
+      cursor: 'grab'
+    }
+  },
   expandButton: {
     // '&::after': {
     //   transform: 'translate3d(-50%, -20%, 0) rotateZ(-90deg)'
@@ -218,7 +224,9 @@ export default () => ({
         backgroundColor: 'white'
       }
     },
-    // '&:hover': {
+    '&:hover $dragContainer': {
+      opacity: 1
+    },
     // '&:active': {
     //   backgroundColor: 'transparent'
     //   // color          : 'white'
@@ -227,10 +235,10 @@ export default () => ({
     // color          : 'white'
     // },
     backgroundColor: 'white',
-    cursor: 'grab',
+    // cursor: 'grab',
     display: 'flex',
     flex: 1,
-    padding: 6,
+    // padding: 6,
     position: 'relative'
   },
   rowCancelPad: {},

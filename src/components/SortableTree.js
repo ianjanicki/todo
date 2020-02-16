@@ -1,194 +1,94 @@
-import React, { Component } from 'react';
-import SortableTree, { toggleExpandedForAll } from 'react-sortable-tree';
-import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
+import React, { useState } from 'react';
+import SortableTreeComponent from 'react-sortable-tree';
+import { InputBase } from '@material-ui/core';
 
-// import './app.css';
+import theme from '../style/react-sortable-tree/index';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+const SortableTree = () => {
+  const [treeData, setTreeData] = useState([
+    {
+      title: '.gitignore',
+      expanded: true,
+      completed: false
+    },
+    { title: 'package.json', expanded: true, completed: false },
+    {
+      title: 'src',
+      children: [
+        { title: 'styles.css', expanded: true, completed: false },
+        { title: 'index.js', expanded: true, completed: false },
+        { title: 'reducers.js', expanded: true, completed: false },
+        { title: 'actions.js', expanded: true, completed: false },
+        { title: 'utils.js', expanded: true, completed: false }
+      ],
+      expanded: true,
+      completed: false
+    },
+    {
+      title: 'tmp',
+      children: [
+        { title: '12214124-log', expanded: true, completed: false },
+        { title: 'drag-disabled-file', expanded: true, completed: false }
+      ],
+      expanded: true,
+      completed: false
+    },
+    {
+      title: 'build',
+      children: [
+        { title: 'react-sortable-tree.js', expanded: true, completed: false }
+      ],
+      expanded: true,
+      completed: false
+    },
+    {
+      title: 'public',
+      expanded: true,
+      completed: false
+    },
+    {
+      title: 'node_modules',
+      expanded: true,
+      completed: false
+    }
+  ]);
 
-    this.state = {
-      searchString: '',
-      searchFocusIndex: 0,
-      searchFoundCount: null,
-      treeData: [
-        { title: '.gitignore' },
-        { title: 'package.json' },
-        {
-          title: 'src',
-          isDirectory: true,
-          expanded: true,
-          children: [
-            { title: 'styles.css' },
-            { title: 'index.js' },
-            { title: 'reducers.js' },
-            { title: 'actions.js' },
-            { title: 'utils.js' }
-          ]
-        },
-        {
-          title: 'tmp',
-          isDirectory: true,
-          children: [
-            { title: '12214124-log' },
-            { title: 'drag-disabled-file', dragDisabled: true }
-          ]
-        },
-        {
-          title: 'build',
-          isDirectory: true,
-          children: [{ title: 'react-sortable-tree.js' }]
-        },
-        {
-          title: 'public',
-          isDirectory: true
-        },
-        {
-          title: 'node_modules',
-          isDirectory: true
-        }
-      ]
-    };
+  const createInput = title => (
+    <div>
+      <InputBase
+        value={title}
+        // {...(todo.completed && { className: classes.completedText })}
+        // autoFocus={focusIndex === index}
+        // onChange={event => updateTodo(index, { title: event.target.value })}
+        // onKeyDown={event => handleInput(event, index)}
+      />
+    </div>
+  );
 
-    this.updateTreeData = this.updateTreeData.bind(this);
-    this.expandAll = this.expandAll.bind(this);
-    this.collapseAll = this.collapseAll.bind(this);
-  }
-
-  updateTreeData(treeData) {
-    this.setState({ treeData });
-  }
-
-  expand(expanded) {
-    this.setState({
-      treeData: toggleExpandedForAll({
-        treeData: this.state.treeData,
-        expanded
+  const insertInput = tree => {
+    const scanChildren = child => ({
+      ...child,
+      title: createInput(child.title),
+      ...(child.children && {
+        children: child.children.map(child => scanChildren(child))
       })
     });
-  }
+    return tree.map(child => scanChildren(child));
+  };
 
-  expandAll() {
-    this.expand(true);
-  }
+  const updateTreeData = treeData => setTreeData(treeData);
 
-  collapseAll() {
-    this.expand(false);
-  }
-
-  render() {
-    const {
-      treeData,
-      searchString,
-      searchFocusIndex,
-      searchFoundCount
-    } = this.state;
-
-    const alertNodeInfo = ({ node, path, treeIndex }) => {
-      const objectString = Object.keys(node)
-        .map(k => (k === 'children' ? 'children: Array' : `${k}: '${node[k]}'`))
-        .join(',\n   ');
-
-      global.alert(
-        'Info passed to the icon and button generators:\n\n' +
-          `node: {\n   ${objectString}\n},\n` +
-          `path: [${path.join(', ')}],\n` +
-          `treeIndex: ${treeIndex}`
-      );
-    };
-
-    const selectPrevMatch = () =>
-      this.setState({
-        searchFocusIndex:
-          searchFocusIndex !== null
-            ? (searchFoundCount + searchFocusIndex - 1) % searchFoundCount
-            : searchFoundCount - 1
-      });
-
-    const selectNextMatch = () =>
-      this.setState({
-        searchFocusIndex:
-          searchFocusIndex !== null
-            ? (searchFocusIndex + 1) % searchFoundCount
-            : 0
-      });
-
-    return (
-      <div
-        style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}
-      >
-        <div style={{ flex: '1 0 50%', padding: '0 0 0 15px' }}>
-          <SortableTree
-            theme={FileExplorerTheme}
-            treeData={treeData}
-            onChange={this.updateTreeData}
-            searchQuery={searchString}
-            searchFocusOffset={searchFocusIndex}
-            searchFinishCallback={matches =>
-              this.setState({
-                searchFoundCount: matches.length,
-                searchFocusIndex:
-                  matches.length > 0 ? searchFocusIndex % matches.length : 0
-              })
-            }
-            canDrag={({ node }) => !node.dragDisabled}
-            canDrop={({ nextParent }) => !nextParent || nextParent.isDirectory}
-            generateNodeProps={rowInfo => ({
-              icons: rowInfo.node.isDirectory
-                ? [
-                    <div
-                      style={{
-                        borderLeft: 'solid 8px gray',
-                        borderBottom: 'solid 10px gray',
-                        marginRight: 10,
-                        boxSizing: 'border-box',
-                        width: 16,
-                        height: 12,
-                        filter: rowInfo.node.expanded
-                          ? 'drop-shadow(1px 0 0 gray) drop-shadow(0 1px 0 gray) drop-shadow(0 -1px 0 gray) drop-shadow(-1px 0 0 gray)'
-                          : 'none',
-                        borderColor: rowInfo.node.expanded ? 'white' : 'gray'
-                      }}
-                    />
-                  ]
-                : [
-                    <div
-                      style={{
-                        border: 'solid 1px black',
-                        fontSize: 8,
-                        textAlign: 'center',
-                        marginRight: 10,
-                        width: 12,
-                        height: 16
-                      }}
-                    >
-                      F
-                    </div>
-                  ],
-              buttons: [
-                <button
-                  style={{
-                    padding: 0,
-                    borderRadius: '100%',
-                    backgroundColor: 'gray',
-                    color: 'white',
-                    width: 16,
-                    height: 16,
-                    border: 0,
-                    fontWeight: 100
-                  }}
-                  onClick={() => alertNodeInfo(rowInfo)}
-                >
-                  i
-                </button>
-              ]
-            })}
-          />
-        </div>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <div style={{ flex: '1 0 50%', padding: '0 0 0 15px' }}>
+        <SortableTreeComponent
+          theme={theme}
+          treeData={insertInput(treeData)}
+          onChange={updateTreeData}
+        />
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
-export default App;
+export default SortableTree;
